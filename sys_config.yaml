@@ -1,0 +1,21 @@
+queue:
+    queuename: posp.queue2
+    rpc_queuename_snd: posp.rpc_queue_snd
+    rpc_queuename_rcv: posp.rpc_queue_rcv
+    username: posp
+    password: posp
+    host: localhost
+    port: 5672
+socket:
+    client:
+      port: 8583
+      host: localhost
+db:
+    host: localhost
+    user: root
+    password: root123
+    database: posp
+server:
+    host: localhost
+    port: 9999
+    maxconn: 5
