@@ -7,7 +7,7 @@ from log import PlatformLog
 class SysConfig(PlatformLog):
     # config = {}
 
-    def __init__(self, default_path="sys_config.yaml"):
+    def __init__(self, default_path="config/sys_config.yaml"):
         super(SysConfig, self).__init__()
         path = default_path
 

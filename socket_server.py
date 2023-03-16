@@ -1,13 +1,17 @@
-import logging
+
+from log import PlatformLog
 import select
 from socket import *
-from rabbitmq_send import RabbitmqSend
+# from rabbitmq_send import RabbitmqSend
 from yml_config import SysConfig
+import hex
 
+
+# platFormLog = log.PlatformLog
 
 class SocketServer(SysConfig):
     def __init__(self):
-        self.rabbitmqsend = RabbitmqSend()
+        # self.rabbitmqsend = RabbitmqSend()
         super(SocketServer, self).__init__()
         host = self.config['server']['host']
         port = self.config['server']['port']
@@ -59,7 +63,7 @@ class NonBlockingSocketServer(SocketServer):
                         conn = item[0]
                         _rabbitmqsend = item[1]
                         _rabbitmqsend.rcv()
-                        logging.debug(_rabbitmqsend.response)
+                        PlatformLog.debug(_rabbitmqsend.response)
                         conn.send(_rabbitmqsend.response)
                         del_wlist.append(item)
                     except BlockingIOError:
@@ -87,9 +91,9 @@ class SelectIOSocketServer(SocketServer):
 
         while True:
 
-            print('被检测r_list： ', len(r_list))
+            PlatformLog.debug('被检测r_list：%d ', len(r_list))
 
-            print('被检测w_list： ', len(w_list))
+            PlatformLog.debug('被检测w_list： %d', len(w_list))
 
             rl, wl, xl = select.select(r_list, w_list, [], )  # r_list=[server,conn] rl等存放等到数据的对象
 
@@ -104,6 +108,9 @@ class SelectIOSocketServer(SocketServer):
                 if r == self.s:  # r l为已经有等到信息的对象，可能为s，亦可为conn；当为s时，执行accept，当为conn时，执行recv
 
                     conn, addr = r.accept()
+
+                    PlatformLog.info('连接 %s ',conn)
+                    PlatformLog.info('地址 %s',addr)
 
                     r_list.append(conn)  # 建立好连接后，将连接丢入r_list中监测
 
@@ -122,6 +129,8 @@ class SelectIOSocketServer(SocketServer):
                             continue
 
                         # r.send(data.upper())
+                        str = hex.Hex.bytes_to_hex(data)
+                        PlatformLog.info('接收到数据 %s ', str)
 
                         w_list.append(r)
 
@@ -138,6 +147,7 @@ class SelectIOSocketServer(SocketServer):
             # 发消息
 
             for w in wl:
+
                 w.send(w_data[w])
 
                 w_list.remove(w)
