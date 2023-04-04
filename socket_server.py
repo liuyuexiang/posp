@@ -4,7 +4,8 @@ import select
 from socket import *
 # from rabbitmq_send import RabbitmqSend
 from yml_config import SysConfig
-import hex
+from hex import Hex
+from msg import Msg
 
 
 # platFormLog = log.PlatformLog
@@ -129,12 +130,14 @@ class SelectIOSocketServer(SocketServer):
                             continue
 
                         # r.send(data.upper())
-                        str = hex.Hex.bytes_to_hex(data)
-                        PlatformLog.info('接收到数据 %s ', str)
+                        str = Hex.bytes_to_hex_no_space(data)
+                        PlatformLog.info('接收到数据 [%s][%s] ', str,data)
+
+                        ret_msg = Msg.start(Msg,str)
 
                         w_list.append(r)
 
-                        w_data[r] = data.upper()
+                        w_data[r] = ret_msg
 
                     except ConnectionResetError:  # select模块不帮忙捕捉ConnectionResetError，此操作针对windows系统
 
@@ -147,8 +150,8 @@ class SelectIOSocketServer(SocketServer):
             # 发消息
 
             for w in wl:
-
-                w.send(w_data[w])
+                PlatformLog.info('发送数据 [%s] [%s]', w_data[w],bytes.fromhex(w_data[w]))
+                w.send(bytes.fromhex(w_data[w]))
 
                 w_list.remove(w)
 
